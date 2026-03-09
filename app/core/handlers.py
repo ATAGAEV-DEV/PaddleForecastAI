@@ -126,14 +126,30 @@ async def get_generate(message: Message, command: CommandObject) -> None:
 
 
 @router.message(Command("meet"))
-async def meet_command(message: Message) -> None:
+async def meet_command(message: Message, command: CommandObject) -> None:
     """Обработчик команды /meet.
 
-    Ищет общие выходные дни для всех друзей на ближайшие 10 дней.
+    Ищет общие выходные дни для всех друзей на заданное количество дней (по умолчанию 10).
     Если у друга нет расписания на этот день, он считается выходным.
     Выводит список общих выходных дней.
     """
     from datetime import timedelta
+
+    days = 10
+    if command.args:
+        try:
+            days = int(command.args.strip())
+            if days <= 0:
+                await message.answer("Пожалуйста, введите положительное число дней.")
+                return
+            if days > 30:
+                await message.answer(
+                    "Слишком большой период. Пожалуйста, введите число не больше 30."
+                )
+                return
+        except ValueError:
+            await message.answer("Пожалуйста, введите корректное целое число дней.")
+            return
 
     friends = await get_all_friends()
     if not friends:
@@ -141,10 +157,10 @@ async def meet_command(message: Message) -> None:
         return
 
     today = datetime.now().date()
-    end_date = today + timedelta(days=9)
+    end_date = today + timedelta(days=days - 1)
 
-    # Все 10 дат
-    all_dates = [today + timedelta(days=i) for i in range(10)]
+    # Все даты
+    all_dates = [today + timedelta(days=i) for i in range(days)]
 
     # Множество рабочих дней всех друзей
     all_working_days = set()
@@ -155,9 +171,41 @@ async def meet_command(message: Message) -> None:
 
     common_free_dates = [d for d in all_dates if d not in all_working_days]
 
+    declension = "дней"
+    if days % 10 == 1 and days % 100 != 11:
+        declension = "день"
+    elif 2 <= days % 10 <= 4 and (days % 100 < 10 or days % 100 >= 20):
+        declension = "дня"
+
     if not common_free_dates:
-        await message.answer("К сожалению, в ближайшие 10 дней общих выходных нет.")
+        await message.answer(f"К сожалению, в ближайшие {days} {declension} общих выходных нет.")
         return
 
     formatted_dates = "\n".join([f"- {d.strftime('%d.%m.%Y')}" for d in common_free_dates])
-    await message.answer(f"Общие выходные дни на ближайшие 10 дней:\n{formatted_dates}")
+    await message.answer(f"Общие выходные дни на ближайшие {days} {declension}:\n{formatted_dates}")
+
+
+@router.message(Command("help"))
+async def help_handler(message: Message) -> None:
+    """Обработчик команды /help.
+
+    Выводит подробное описание функционала бота и доступных команд.
+    """
+    help_text = (
+        "🤖 *Добро пожаловать в PaddleForecastAI!* 🤖\n\n"
+        "Я ваш личный ИИ-помощник для планирования отдыха и работы.\n\n"
+        "📖 *Доступные команды:*\n\n"
+        "🔹 /start\n"
+        "Запустить бота, начать работу и авторизоваться с помощью пароля, если вы здесь впервые.\n\n"
+        "🔹 /get `[имя_друга]` (опционально)\n"
+        "Получить ИИ-прогноз погоды для города Червлённая на 5 дней. \n"
+        "Если указать имя друга (например, `/get Иван`), из прогноза будут исключены дни, "
+        "в которые этот человек работает.\n\n"
+        "🔹 /meet `[число_дней]` (опционально)\n"
+        "Найти общие выходные дни для всех друзей в базе данных.\n"
+        "По умолчанию ищет на ближайшие 10 дней. Можно указать свой период до 30 дней "
+        "(например, `/meet 14`), чтобы посмотреть совпадения свободных дат.\n\n"
+        "🔹 /help\n"
+        "Показать это справочное меню."
+    )
+    await message.answer(help_text, parse_mode="Markdown")
