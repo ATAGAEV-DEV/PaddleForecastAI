@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 from dotenv import load_dotenv
 from sqlalchemy import (
@@ -32,9 +32,19 @@ def get_engine(schema: str) -> AsyncEngine:
 
     Устанавливает параметр search_path в соединении, чтобы все запросы выполнялись
     в заданной схеме PostgreSQL.
+
+    Args:
+        schema (str): Название схемы в базе данных.
+
+    Returns:
+        AsyncEngine: Асинхронный движок SQLAlchemy.
+
     """
     return create_async_engine(
-        DATABASE_URL, connect_args={"server_settings": {"search_path": schema}}
+        DATABASE_URL,
+        connect_args={"server_settings": {"search_path": schema}},
+        pool_pre_ping=True,
+        pool_recycle=1800,
     )
 
 
@@ -79,7 +89,7 @@ class WeatherRequests(Base):
     user_id = Column(Integer)
     forecast_text = Column(Text)
     ai_response = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 
 class Friends(Base):
