@@ -32,13 +32,6 @@ def get_engine(schema: str) -> AsyncEngine:
 
     Устанавливает параметр search_path в соединении, чтобы все запросы выполнялись
     в заданной схеме PostgreSQL.
-
-    Args:
-        schema (str): Название схемы в базе данных.
-
-    Returns:
-        AsyncEngine: Асинхронный движок SQLAlchemy.
-
     """
     return create_async_engine(
         DATABASE_URL,

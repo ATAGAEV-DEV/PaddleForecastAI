@@ -15,13 +15,6 @@ async def get_user_by_id(user_id: int) -> Users | None:
     Выполняет асинхронный запрос к базе данных для поиска записи в таблице 'users'
     с указанным user_id. Возвращает объект пользователя или None, если пользователь
     не найден. В случае ошибки выводит сообщение об ошибке и возвращает None.
-
-    Args:
-        user_id (int): Уникальный идентификатор пользователя в Telegram.
-
-    Returns:
-        Users | None: Объект пользователя, если найден, иначе None.
-
     """
     try:
         async with async_session() as session:
@@ -41,11 +34,6 @@ async def add_user(user_id: int, username: str) -> None:
 
     Использует upsert (INSERT ... ON CONFLICT DO UPDATE) для безопасного
     добавления пользователя. Если пользователь уже существует, обновляется username.
-
-    Args:
-        user_id (int): Уникальный идентификатор пользователя в Telegram.
-        username (str): Имя пользователя в Telegram (может быть пустым).
-
     """
     try:
         async with async_session() as session:
