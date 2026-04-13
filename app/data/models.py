@@ -24,7 +24,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-SCHEMA = "public"
+SCHEMA = "pictures"
 
 
 def get_engine(schema: str) -> AsyncEngine:
