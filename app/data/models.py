@@ -185,7 +185,7 @@ class WeatherRequests(Base):
     user_id = Column(Integer)
     forecast_text = Column(Text)
     ai_response = Column(Text)
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())
 
 
 class Friends(Base):
