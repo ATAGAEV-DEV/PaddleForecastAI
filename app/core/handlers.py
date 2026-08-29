@@ -122,6 +122,10 @@ async def get_generate(message: Message, command: CommandObject) -> None:
         user_id=message.from_user.id, forecast_text=weather_forecast_str, ai_response=result
     )
 
+    if not result:
+        await message.answer("⚠️ Не удалось получить рекомендации. Попробуйте позже.")
+        return
+
     await message.answer(result)
 
 
