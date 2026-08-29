@@ -26,8 +26,8 @@ async def main() -> None:
 
         print("Генерация рабочего графика для Arbi...")
         # 2. Генерируем график работы для Арби (2 через 2)
-        start_date = date(2026, 3, 8)
-        end_date = date(2026, 6, 1)  # Заполняем до мая
+        start_date = date(2026, 1, 1)
+        end_date = date(2027, 1, 1)  # Заполняем до мая
 
         current_date = start_date
         working = True
@@ -51,7 +51,7 @@ async def main() -> None:
         print("Генерация рабочего графика для Zelim...")
         # 3. Генерируем график работы для Zelim (2 через 2)
         # Смена выпадает на 7 и 8 марта, как и требовалось
-        start_date_zelim = date(2026, 3, 9)
+        start_date_zelim = date(2027, 1, 1)
 
         current_date = start_date_zelim
         working = True
