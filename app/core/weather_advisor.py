@@ -1,4 +1,4 @@
-import os
+﻿import os
 
 from dotenv import load_dotenv
 from openai import APIConnectionError, APIError, AsyncOpenAI, BadRequestError
@@ -28,7 +28,7 @@ async def ai_generate(weather_forecast: str) -> str | None:
     message = await generate_prompt(weather_forecast)
     try:
         completion = await client.chat.completions.create(
-            model="openai/gpt-4o",
+            model="anthropic/claude-haiku-4.5",
             messages=message,
             temperature=0.8,
         )
