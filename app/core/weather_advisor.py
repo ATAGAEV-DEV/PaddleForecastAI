@@ -1,7 +1,7 @@
 ﻿import os
 
 from dotenv import load_dotenv
-from openai import APIConnectionError, APIError, AsyncOpenAI, BadRequestError
+from openai import APIConnectionError, APIError, APITimeoutError, AsyncOpenAI, BadRequestError
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
 
 from app.tools.utils import clean_text
@@ -37,17 +37,25 @@ async def ai_generate(weather_forecast: str) -> str | None:
         response = clean_text(response_text)
         return response
 
+    except APITimeoutError:
+        print("Ошибка: превышено время ожидания ответа от ИИ-сервиса")
+        return "⏱ ИИ-сервис не ответил вовремя. Попробуйте повторить запрос через минуту."
+
     except BadRequestError as e:
         print(f"Ошибка запроса к API: {e}")
+        return "❌ Некорректный запрос к ИИ-сервису. Попробуйте позже."
 
     except APIConnectionError as e:
         print(f"Ошибка подключения к API: {e}")
+        return "🔌 Не удалось подключиться к ИИ-сервису. Проверьте соединение и попробуйте снова."
 
     except APIError as e:
         print(f"Ошибка API: {e}")
+        return "⚠️ Ошибка ИИ-сервиса. Попробуйте позже."
 
     except Exception as e:
         print(f"Неожиданная ошибка: {e}")
+        return "⚠️ Произошла непредвиденная ошибка. Попробуйте позже."
 
 
 async def generate_prompt(
