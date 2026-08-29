@@ -135,6 +135,18 @@ class DualSessionProxy:
         except Exception as e:
             print(f"Ошибка удаления из удалённой БД: {e}")
 
+    async def merge(self, instance: Any) -> Any:
+        """Мёржит объект в обеих сессиях (upsert по первичному ключу)."""
+        result = await self.local.merge(instance)
+        state = instance.__dict__.copy()
+        state.pop("_sa_instance_state", None)
+        remote_instance = instance.__class__(**state)
+        try:
+            await self.remote.merge(remote_instance)
+        except Exception as e:
+            print(f"Ошибка merge в удаленной БД: {e}")
+        return result
+
     async def rollback(self) -> None:
         """Откатывает транзакцию в обеих БД."""
         await self.local.rollback()
