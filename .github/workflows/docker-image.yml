@@ -29,11 +29,13 @@ jobs:
         run: |
           docker run -d --name paddlebot \
             --restart unless-stopped \
-            -e AI_TOKEN_POLZA="${{ secrets.AI_TOKEN_POLZA }}" \
+            -e AI_TOKEN="${{ secrets.AI_TOKEN }}" \
+            -e AI_PROVIDER_URL="${{ secrets.AI_PROVIDER_URL }}" \
             -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-            -e DATABASE_URL_LOCAL="${{ secrets.DATABASE_URL_LOCAL }}" \
+            -e DATABASE_SCHEMA="${{ secrets.DATABASE_SCHEMA || 'public' }}" \
             -e TG_TOKEN="${{ secrets.TG_TOKEN }}" \
             -e WEATHER_API="${{ secrets.WEATHER_API }}" \
+            -e WEATHER_CITY="${{ secrets.WEATHER_CITY || 'Червлённая' }}" \
             paddleforecastbot:latest
 
       # Шаг 5 (Опционально): Очистка старых "повисших" образов, чтобы не забивать память мини-ПК
