@@ -5,6 +5,7 @@ __pycache__/
 /.idea
 test.py
 test02.py
+.env.test
 
 # C extensions
 *.so
