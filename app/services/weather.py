@@ -45,7 +45,7 @@ async def make_weather_request(endpoint: str, params: dict[str, Any]) -> dict[st
         logger.error(f"HTTP ошибка: {e.response.status_code} - {e.response.text}")
         return None
     except Exception as e:
-        logger.error(f"Ошибка при запросе к API: {str(e)}")
+        logger.error(f"Ошибка при запросе к API: {e!s}")
         return None
 
 
