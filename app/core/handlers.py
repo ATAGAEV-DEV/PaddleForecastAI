@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from aiogram import Router
@@ -5,6 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
+from dotenv import load_dotenv
 
 from app.core.weather_advisor import ai_generate
 from app.data.request import (
@@ -18,6 +20,9 @@ from app.data.request import (
 from app.services.weather import get_forecast
 from app.tools.utils import hash_password
 
+load_dotenv()
+
+WEATHER_CITY = os.getenv("WEATHER_CITY") or "Червлённая"
 router = Router()
 
 
@@ -72,14 +77,14 @@ async def password_handler(message: Message, state: FSMContext) -> None:
 async def get_generate(message: Message, command: CommandObject) -> None:
     """Обработчик команды /get.
 
-    Получает прогноз погоды для города Червлённая на 5 дней.
+    Получает прогноз погоды для города из WEATHER_CITY на 5 дней.
     Если передан аргумент (имя друга), проверяет рабочие дни друга
     в БД и исключает их из прогноза.
     Передаёт прогноз в систему ИИ-советника, сохраняет запрос и ответ в базу,
     затем отправляет пользователю результат совета.
     """
     friend_name = command.args
-    weather_forecast = await get_forecast("Червлённая", days=5)
+    weather_forecast = await get_forecast(WEATHER_CITY, days=5)
 
     if isinstance(weather_forecast, list):
         if friend_name:
@@ -198,7 +203,7 @@ async def help_handler(message: Message) -> None:
         "🔹 /start\n"
         "Запустить бота, начать работу и авторизоваться с помощью пароля, если вы здесь впервые.\n\n"
         "🔹 /get `[имя_друга]` (опционально)\n"
-        "Получить ИИ-прогноз погоды для города Червлённая на 5 дней. \n"
+        f"Получить ИИ-прогноз погоды для города {WEATHER_CITY} на 5 дней. \n"
         "Если указать имя друга (например, `/get Иван`), из прогноза будут исключены дни, "
         "в которые этот человек работает.\n\n"
         "🔹 /meet `[число_дней]` (опционально)\n"
