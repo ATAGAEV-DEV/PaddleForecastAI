@@ -13,7 +13,10 @@ from app.data.models import Base
 
 def pytest_configure(config: pytest.Config) -> None:
     """Register the explicit opt-in marker for database integration tests."""
-    config.addinivalue_line("markers", "integration: test against the configured PostgreSQL database")
+    config.addinivalue_line(
+        "markers",
+        "integration: test against the configured PostgreSQL database",
+    )
 
 
 def _test_database_url() -> str:
@@ -45,7 +48,10 @@ async def db_session() -> AsyncGenerator[object]:
         try:
             async with verifier.connect() as connection:
                 remaining = await connection.scalar(
-                    text("SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema"),
+                    text(
+                        "SELECT schema_name FROM information_schema.schemata "
+                        "WHERE schema_name = :schema"
+                    ),
                     {"schema": schema},
                 )
             assert remaining is None
