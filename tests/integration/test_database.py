@@ -17,7 +17,10 @@ from app.data.request import (
 pytestmark = pytest.mark.integration
 
 
-async def test_database_round_trip_preserves_users_friends_and_schedules(db_session, monkeypatch) -> None:
+async def test_database_round_trip_preserves_users_friends_and_schedules(
+    db_session: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Persist and read all application records through the real request helpers."""
     session_factory = async_sessionmaker(db_session, expire_on_commit=False)
     monkeypatch.setattr("app.data.request.async_session", session_factory)
