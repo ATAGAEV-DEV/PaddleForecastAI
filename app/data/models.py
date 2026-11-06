@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 from dotenv import load_dotenv
 from sqlalchemy import (
@@ -74,7 +74,7 @@ class WeatherRequests(Base):
     user_id = Column(Integer)
     forecast_text = Column(Text)
     ai_response = Column(Text)
-    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
 
 
 class Friends(Base):
