@@ -51,7 +51,7 @@ async def main() -> None:
         print("Генерация рабочего графика для Zelim...")
         # 3. Генерируем график работы для Zelim (2 через 2)
         # Смена выпадает на 7 и 8 марта, как и требовалось
-        start_date_zelim = date(2027, 1, 1)
+        start_date_zelim = date(2026, 1, 1)
 
         current_date = start_date_zelim
         working = True
