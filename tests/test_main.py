@@ -1,9 +1,13 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from main import main
 
 
-async def test_main_initializes_database_and_starts_polling(monkeypatch) -> None:
+async def test_main_initializes_database_and_starts_polling(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Wire the router and initialize storage before Telegram polling."""
     bot = AsyncMock()
     dispatcher = MagicMock()
