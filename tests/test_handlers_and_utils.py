@@ -1,6 +1,6 @@
 from datetime import date
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -50,7 +50,10 @@ async def test_password_accepts_valid_password(monkeypatch: pytest.MonkeyPatch) 
     add_user = AsyncMock()
     monkeypatch.setattr(handlers, "add_user", add_user)
     incoming = message("secret", username=None)
-    monkeypatch.setattr(handlers, "hash_password", lambda value: handlers.ACCESS_PASSWORD if value == "secret" else "")
+    def hashed(value: str) -> str:
+        return handlers.ACCESS_PASSWORD if value == "secret" else ""
+
+    monkeypatch.setattr(handlers, "hash_password", hashed)
     state = AsyncMock()
 
     await handlers.password_handler(incoming, state)
@@ -89,8 +92,10 @@ async def test_get_filters_friend_working_days(monkeypatch: pytest.MonkeyPatch) 
     """Remove only the selected friend's working dates from the forecast."""
     lines = [forecast("2026-01-01"), forecast("2026-01-02")]
     monkeypatch.setattr(handlers, "get_forecast", AsyncMock(return_value=lines))
-    monkeypatch.setattr(handlers, "get_friend_by_name", AsyncMock(return_value=SimpleNamespace(id=7)))
-    monkeypatch.setattr(handlers, "get_friend_working_days", AsyncMock(side_effect=[[], [date(2026, 1, 1)]]))
+    friend = SimpleNamespace(id=7)
+    working_days = AsyncMock(side_effect=[[], [date(2026, 1, 1)]])
+    monkeypatch.setattr(handlers, "get_friend_by_name", AsyncMock(return_value=friend))
+    monkeypatch.setattr(handlers, "get_friend_working_days", working_days)
     generate = AsyncMock(return_value="advice")
     monkeypatch.setattr(handlers, "ai_generate", generate)
     monkeypatch.setattr(handlers, "save_weather_request", AsyncMock())
@@ -105,11 +110,16 @@ async def test_get_filters_friend_working_days(monkeypatch: pytest.MonkeyPatch) 
     assert forecast("2026-01-01") not in generated.args[0]
 
 
-async def test_get_reports_missing_friend_and_fully_busy_schedule(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_get_reports_missing_friend_and_fully_busy_schedule(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Stop before AI generation for unknown friends and fully occupied dates."""
-    monkeypatch.setattr(handlers, "get_forecast", AsyncMock(return_value=[forecast("2026-01-01")]))
-    monkeypatch.setattr(handlers, "get_friend_by_name", AsyncMock(side_effect=[None, SimpleNamespace(id=7)]))
-    monkeypatch.setattr(handlers, "get_friend_working_days", AsyncMock(return_value=[date(2026, 1, 1)]))
+    forecast_result = AsyncMock(return_value=[forecast("2026-01-01")])
+    friends = AsyncMock(side_effect=[None, SimpleNamespace(id=7)])
+    working_days = AsyncMock(return_value=[date(2026, 1, 1)])
+    monkeypatch.setattr(handlers, "get_forecast", forecast_result)
+    monkeypatch.setattr(handlers, "get_friend_by_name", friends)
+    monkeypatch.setattr(handlers, "get_friend_working_days", working_days)
     generate = AsyncMock()
     monkeypatch.setattr(handlers, "ai_generate", generate)
     incoming = message()
@@ -132,7 +142,9 @@ async def test_meet_validates_period_and_reports_results(monkeypatch: pytest.Mon
     await handlers.meet_command(incoming, SimpleNamespace(args=None))
 
     frozen_today = date(2026, 1, 1)
-    monkeypatch.setattr(handlers, "datetime", SimpleNamespace(now=lambda: SimpleNamespace(date=lambda: frozen_today), strptime=handlers.datetime.strptime))
+    clock = SimpleNamespace(date=lambda: frozen_today)
+    fake_datetime = SimpleNamespace(now=lambda: clock, strptime=handlers.datetime.strptime)
+    monkeypatch.setattr(handlers, "datetime", fake_datetime)
     monkeypatch.setattr(handlers, "get_all_friends", AsyncMock(return_value=[SimpleNamespace(id=1)]))
     monkeypatch.setattr(handlers, "get_friend_working_days", AsyncMock(return_value=[frozen_today]))
     await handlers.meet_command(incoming, SimpleNamespace(args="1"))
