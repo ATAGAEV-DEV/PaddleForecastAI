@@ -1,5 +1,4 @@
 import logging
-from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx
@@ -18,7 +17,10 @@ def response(payload: dict, error: Exception | None = None) -> MagicMock:
     return result
 
 
-async def test_weather_request_handles_missing_key_and_errors(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+async def test_weather_request_handles_missing_key_and_errors(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     """Cover missing credentials, HTTP failures, and unexpected client failures."""
     monkeypatch.setattr(weather, "WEATHER_API", "")
     assert await weather.make_weather_request("forecast", {}) is None
@@ -40,7 +42,9 @@ async def test_weather_request_handles_missing_key_and_errors(monkeypatch: pytes
     assert await weather.make_weather_request("forecast", {}) is None
 
 
-async def test_forecast_formats_selected_hours_and_api_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_forecast_formats_selected_hours_and_api_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Clamp the day count and return only the supported afternoon slots."""
     payloads = [
         None,
@@ -48,8 +52,18 @@ async def test_forecast_formats_selected_hours_and_api_errors(monkeypatch: pytes
         {
             "cod": "200",
             "list": [
-                {"dt_txt": "2026-01-01 12:00:00", "main": {"temp": 18, "humidity": 40}, "wind": {"speed": 2}, "weather": [{"description": "ясно"}]},
-                {"dt_txt": "2026-01-01 00:00:00", "main": {"temp": 1, "humidity": 1}, "wind": {"speed": 1}, "weather": [{"description": "ночь"}]},
+                {
+                    "dt_txt": "2026-01-01 12:00:00",
+                    "main": {"temp": 18, "humidity": 40},
+                    "wind": {"speed": 2},
+                    "weather": [{"description": "ясно"}],
+                },
+                {
+                    "dt_txt": "2026-01-01 00:00:00",
+                    "main": {"temp": 1, "humidity": 1},
+                    "wind": {"speed": 1},
+                    "weather": [{"description": "ночь"}],
+                },
             ],
         },
     ]
