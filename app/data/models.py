@@ -47,7 +47,6 @@ class Base(AsyncAttrs, DeclarativeBase):
     с асинхронным режимом работы SQLAlchemy.
     """
 
-    pass
 
 
 class Users(Base):
